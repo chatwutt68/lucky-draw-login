@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบจับรางวัลงานปีใหม่</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--mut:#5b6575;--line:#cfd6e0;--blue:#1565c0;--bg:#f4f6f9}
+*{box-sizing:border-box}
+body{margin:0;font-family:Sarabun,"Noto Sans Thai",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+header{background:var(--ink);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:22px}
+#who{display:flex;gap:12px;align-items:center;font-size:15px}
+.menu{display:flex;gap:8px;flex-wrap:wrap;max-width:780px;margin:14px auto 0;padding:0 16px}
+.menu button{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.menu button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+main{max-width:780px;margin:0 auto;padding:12px 16px 40px}
+.v{display:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:18px}
+.v.on{display:block}
+#login{max-width:420px;margin:40px auto}
+h2{margin:0 0 12px;font-size:20px}
+label{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;margin-bottom:10px}
+input,select{font:inherit;padding:7px 9px;border:1px solid #9aa7b8;border-radius:4px;width:100%;min-width:0}
+button{font:inherit;font-weight:500;color:#fff;background:var(--blue);border:0;border-radius:4px;padding:7px 16px;cursor:pointer}
+button:hover{filter:brightness(.92)}
+button.g{background:#fff;color:var(--ink);border:1px solid #9aa7b8}
+button.d{background:#b03a2e}
+button.s{padding:3px 10px;font-size:14px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #ff9800;outline-offset:2px}
+table{border-collapse:collapse;width:100%;margin-top:12px;font-size:15px}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+th{background:#eef2f7}
+.n{text-align:right}
+.msg{margin-top:12px;padding:8px 12px;border-radius:4px;display:none}
+.msg.ok{display:block;background:#e3f4e6;color:#1b5e20}
+.msg.er{display:block;background:#fdeaea;color:#8e1b1b}
+.big{font-size:19px;font-weight:700;padding:12px;background:#fff8e1;border:1px solid #f0d78a;border-radius:6px;margin-top:12px;display:none}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.c{background:#eef2f7;border-radius:6px;padding:12px}
+.c b{display:block;font-size:28px}
+.hint{color:var(--mut);font-size:14px;margin-top:14px}
+@media print{header,.menu,.noprint{display:none}.v{border:0}}
+</style>
+</head>
+<body>
+<header>
+<h1>ระบบจับรางวัลงานปีใหม่</h1>
+<div id="who"></div>
+</header>
+<div class="menu" id="menu"></div>
+<main>
+
+<section class="v" id="login"><h2>เข้าสู่ระบบ</h2>
+<label>รหัสพนักงาน<input id="l-id" placeholder="เช่น E001" autocomplete="off"></label>
+<button id="l-go">เข้าสู่ระบบ</button>
+<div class="msg" id="l-msg"></div>
+<p class="hint">รหัสสำหรับทดสอบ: E001 ถึง E020 (พนักงาน), H001 (HR), M001 (ผู้บริหาร)</p></section>
+
+<section class="v" id="reg"><h2>ลงทะเบียนร่วมงาน</h2>
+<div class="big" id="r-info" style="display:block;background:#eef2f7;border-color:var(--line)"></div>
+<p><button id="r-go">ลงทะเบียน</button></p><div class="msg" id="r-msg"></div></section>
+
+<section class="v" id="check"><h2>ตรวจสอบรางวัลของฉัน</h2>
+<button id="c-go">ตรวจสอบ</button><div class="msg" id="c-msg"></div></section>
+
+<section class="v" id="ann"><h2>ประกาศผลรางวัล</h2>
+<table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>รางวัล</th></tr></thead><tbody id="a-body"></tbody></table></section>
+
+<section class="v" id="prize"><h2>จัดการรางวัล</h2>
+<label>รหัสรางวัล<input id="p-id" placeholder="P03"></label>
+<label>ชื่อรางวัล<input id="p-name" placeholder="ทีวี"></label>
+<label>จำนวน<input id="p-qty" type="number" min="1" value="1"></label>
+<div class="row"><button id="p-go">บันทึกรางวัล</button><button class="g" id="p-clr">ล้างฟอร์ม</button></div>
+<div class="msg" id="p-msg"></div>
+<table><thead><tr><th>รหัส</th><th>ชื่อรางวัล</th><th class="n">จำนวน</th><th></th></tr></thead><tbody id="p-body"></tbody></table></section>
+
+<section class="v" id="draw"><h2>สุ่มรางวัล</h2>
+<label>รางวัล<select id="d-prize"></select></label>
+<div class="row"><button id="d-go">สุ่มรางวัล</button><button id="d-save" class="g">บันทึกผล</button></div>
+<div class="big" id="d-win"></div><div class="msg" id="d-msg"></div></section>
+
+<section class="v" id="claim"><h2>บันทึกรับรางวัล</h2>
+<label>รหัสพนักงาน<input id="k-id" placeholder="E001"></label>
+<div class="row"><button id="k-find" class="g">ค้นหา</button><button id="k-go">ยืนยันรับรางวัล</button></div>
+<div class="big" id="k-info"></div><div class="msg" id="k-msg"></div></section>
+
+<section class="v" id="emps"><h2>รายชื่อพนักงาน</h2>
+<label>รหัสพนักงาน<input id="e-id" placeholder="E021"></label>
+<label>ชื่อ-นามสกุล<input id="e-name"></label>
+<label>แผนก<input id="e-dep"></label>
+<label>บทบาท<select id="e-role"><option value="employee">พนักงาน</option><option value="hr">HR</option><option value="exec">ผู้บริหาร</option></select></label>
+<div class="row"><button id="e-go">เพิ่มพนักงาน</button><button class="g" id="e-reg">ลงทะเบียนแทนทุกคน (ทดสอบ)</button></div>
+<div class="msg" id="e-msg"></div>
+<table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>บทบาท</th><th>ลงทะเบียน</th></tr></thead><tbody id="e-body"></tbody></table></section>
+
+<section class="v" id="rep"><h2>รายงานสรุป</h2>
+<div class="cards" id="x-cards"></div>
+<table><thead><tr><th>รางวัล</th><th class="n">จำนวน</th><th class="n">สุ่มแล้ว</th><th class="n">รับแล้ว</th><th class="n">ยังไม่รับ</th></tr></thead><tbody id="x-body"></tbody></table>
+<p class="noprint"><button id="x-print">พิมพ์รายงาน</button></p></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const KEY="lucky-draw-v2",SK="lucky-draw-user";
+const NAMES=["สมชาย ใจดี","สมหญิง รักงาน","วิชัย มั่นคง","นภา สว่างใจ","ปิยะ เรืองศรี","มาลี ทองดี","ชาติชาย แสงทอง","อรุณ พึ่งบุญ","กานดา สุขใจ","ธนา วงศ์ไทย","สุดา พรหมมา","ประเสริฐ ดีเลิศ","รัตนา จันทร์เพ็ญ","ศักดิ์ชัย บุญมี","พิมพ์ใจ ใฝ่ดี","เกรียงไกร ชัยชนะ","ลัดดา มีสุข","สมศักดิ์ ภักดี","วรรณา เจริญผล","อนันต์ พัฒนา"];
+const DEPS=["บัญชี","ขาย","IT","การตลาด"];
+function fresh(){
+ const emps=NAMES.map((n,i)=>({id:"E"+String(i+1).padStart(3,"0"),name:n,dep:DEPS[i%4],role:"employee"}));
+ emps.push({id:"H001",name:"สุมาลี บุคคลดี",dep:"HR",role:"hr"},{id:"M001",name:"ประยุทธ์ บริหารกิจ",dep:"ผู้บริหาร",role:"exec"});
+ return {emps,regs:[],prizes:[{id:"P01",name:"จักรยาน",qty:1},{id:"P02",name:"หูฟังไร้สาย",qty:3}],results:[],draws:[]};
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const now=()=>new Date().toLocaleString("th-TH");
+const norm=s=>s.trim().toUpperCase();
+const msg=(id,t,ok)=>{const m=$(id);m.textContent=t;m.className="msg "+(ok?"ok":"er")};
+const prizeOf=id=>S.prizes.find(p=>p.id===id);
+const empOf=id=>S.emps.find(e=>e.id===id);
+const ROLE={employee:"พนักงาน",hr:"HR",exec:"ผู้บริหาร"};
+const MENUS={
+ employee:[["reg","ลงทะเบียน"],["check","ตรวจสอบรางวัล"],["ann","ประกาศผลรางวัล"]],
+ hr:[["prize","จัดการรางวัล"],["draw","สุ่มรางวัล"],["ann","ประกาศผลรางวัล"],["claim","บันทึกรับรางวัล"],["emps","รายชื่อพนักงาน"]],
+ exec:[["rep","รายงานสรุป"]]
+};
+let me=null,view="login";
+try{me=empOf(sessionStorage.getItem(SK))||null}catch(e){}
+if(me)view=MENUS[me.role][0][0];
+
+function nav(){
+ if(!me){view="login";$("who").innerHTML="";$("menu").innerHTML=""}
+ else{
+  $("who").innerHTML=`<span>${esc(me.name)} (${ROLE[me.role]})</span><button class="g s" id="out">ออกจากระบบ</button>`;
+  $("menu").innerHTML=MENUS[me.role].map(([v,t])=>`<button data-v="${v}" class="${v===view?"on":""}">${t}</button>`).join("");
+ }
+ document.querySelectorAll(".v").forEach(s=>s.classList.toggle("on",s.id===view));
+ render();
+}
+$("menu").onclick=e=>{const v=e.target.dataset.v;if(v){view=v;nav()}};
+$("who").onclick=e=>{if(e.target.id==="out"){me=null;try{sessionStorage.removeItem(SK)}catch(x){}nav()}};
+
+$("l-go").onclick=()=>{
+ const id=norm($("l-id").value);
+ if(!id)return msg("l-msg","ใส่รหัสพนักงาน",0);
+ const e=empOf(id);
+ if(!e)return msg("l-msg","ไม่พบรหัสพนักงานนี้ในระบบ",0);
+ me=e;try{sessionStorage.setItem(SK,id)}catch(x){}
+ view=MENUS[e.role][0][0];$("l-id").value="";$("l-msg").className="msg";nav();
+};
+$("l-id").onkeydown=e=>{if(e.key==="Enter")$("l-go").click()};
+
+function render(){
+ if(view==="reg"){
+  const r=S.regs.find(x=>x.empId===me.id);
+  $("r-info").innerHTML=`รหัส: ${esc(me.id)}<br>ชื่อ: ${esc(me.name)}<br>แผนก: ${esc(me.dep)}<br>สถานะ: ${r?"ลงทะเบียนแล้ว ("+esc(r.date)+")":"ยังไม่ลงทะเบียน"}`;
+ }
+ if(view==="ann"){
+  $("a-body").innerHTML=S.results.map(r=>`<tr><td>${esc(r.empId)}</td><td>${esc(empOf(r.empId)?.name||"")}</td><td>${esc(prizeOf(r.prizeId)?.name||"")}</td></tr>`).join("")||`<tr><td colspan="3">ยังไม่มีการประกาศผล</td></tr>`;
+ }
+ if(view==="prize"){
+  $("p-body").innerHTML=S.prizes.map(p=>`<tr><td>${esc(p.id)}</td><td>${esc(p.name)}</td><td class="n">${p.qty}</td><td><button class="s g" data-act="edit" data-id="${esc(p.id)}">แก้ไข</button> <button class="s d" data-act="del" data-id="${esc(p.id)}">ลบ</button></td></tr>`).join("")||`<tr><td colspan="4">ยังไม่มีรางวัล</td></tr>`;
+ }
+ if(view==="draw"){
+  const cur=$("d-prize").value;
+  $("d-prize").innerHTML=S.prizes.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+  if(cur)$("d-prize").value=cur;
+ }
+ if(view==="emps"){
+  $("e-body").innerHTML=S.emps.map(e=>`<tr><td>${esc(e.id)}</td><td>${esc(e.name)}</td><td>${esc(e.dep)}</td><td>${ROLE[e.role]}</td><td>${S.regs.some(r=>r.empId===e.id)?"แล้ว":"-"}</td></tr>`).join("");
+ }
+ if(view==="rep"){
+  const done=S.results.filter(r=>r.status==="รับแล้ว").length;
+  $("x-cards").innerHTML=[["ลงทะเบียน",S.regs.length],["ได้รับรางวัล",S.results.length],["รับแล้ว",done],["ยังไม่รับ",S.results.length-done]].map(([t,n])=>`<div class="c">${t}<b>${n}</b></div>`).join("");
+  $("x-body").innerHTML=S.prizes.map(p=>{const rs=S.results.filter(r=>r.prizeId===p.id),d=rs.filter(r=>r.status==="รับแล้ว").length;return `<tr><td>${esc(p.name)}</td><td class="n">${p.qty}</td><td class="n">${rs.length}</td><td class="n">${d}</td><td class="n">${rs.length-d}</td></tr>`}).join("");
+ }
+}
+
+$("r-go").onclick=()=>{
+ if(S.regs.some(r=>r.empId===me.id))return msg("r-msg","คุณลงทะเบียนแล้ว",0);
+ S.regs.push({empId:me.id,date:now()});save();render();msg("r-msg","ลงทะเบียนสำเร็จ",1);
+};
+
+$("c-go").onclick=()=>{
+ if(!S.regs.some(r=>r.empId===me.id))return msg("c-msg","คุณยังไม่ได้ลงทะเบียนร่วมงาน",0);
+ const r=S.results.find(x=>x.empId===me.id);
+ if(!r)return msg("c-msg","ยังไม่พบรางวัลของคุณ (อาจยังไม่สุ่ม หรือไม่ได้รับรางวัล)",0);
+ msg("c-msg",`ยินดีด้วย คุณได้รับ: ${prizeOf(r.prizeId)?.name||"-"} | สถานะ: ${r.status}`,1);
+};
+
+let editing=null;
+function clearP(){editing=null;["p-id","p-name"].forEach(i=>$(i).value="");$("p-qty").value=1;$("p-id").disabled=false}
+$("p-clr").onclick=clearP;
+$("p-go").onclick=()=>{
+ const id=norm($("p-id").value),name=$("p-name").value.trim(),qty=parseInt($("p-qty").value,10);
+ if(!id||!name||!(qty>=1))return msg("p-msg","กรอกรหัส ชื่อ และจำนวน (อย่างน้อย 1)",0);
+ if(editing){
+  const p=prizeOf(editing);
+  if(qty<S.results.filter(r=>r.prizeId===p.id).length)return msg("p-msg","จำนวนน้อยกว่าที่สุ่มไปแล้ว",0);
+  p.name=name;p.qty=qty;
+ }else{
+  if(prizeOf(id))return msg("p-msg","รหัสรางวัลนี้มีอยู่แล้ว",0);
+  S.prizes.push({id,name,qty});
+ }
+ save();clearP();render();msg("p-msg","บันทึกรางวัลแล้ว",1);
+};
+$("p-body").onclick=e=>{
+ const a=e.target.dataset.act,id=e.target.dataset.id;if(!a)return;
+ const p=prizeOf(id);
+ if(a==="edit"){editing=id;$("p-id").value=p.id;$("p-id").disabled=true;$("p-name").value=p.name;$("p-qty").value=p.qty;msg("p-msg","กำลังแก้ไข "+p.id,1)}
+ if(a==="del"){
+  if(S.results.some(r=>r.prizeId===id))return msg("p-msg","ลบไม่ได้ เพราะมีผู้ได้รางวัลนี้แล้ว",0);
+  if(!confirm("ลบรางวัล "+p.name+"?"))return;
+  S.prizes=S.prizes.filter(x=>x.id!==id);save();render();msg("p-msg","ลบรางวัลแล้ว",1);
+ }
+};
+
+let pending=null;
+$("d-go").onclick=()=>{
+ pending=null;$("d-win").style.display="none";
+ const p=prizeOf($("d-prize").value);
+ if(!p)return msg("d-msg","ยังไม่มีรางวัลให้สุ่ม",0);
+ if(S.results.filter(r=>r.prizeId===p.id).length>=p.qty)return msg("d-msg","รางวัลนี้สุ่มครบจำนวนแล้ว",0);
+ const pool=S.regs.filter(g=>!S.results.some(r=>r.empId===g.empId));
+ if(!pool.length)return msg("d-msg","ไม่มีผู้ลงทะเบียนที่ยังไม่ได้รางวัล",0);
+ const w=empOf(pool[Math.floor(Math.random()*pool.length)].empId);
+ pending={emp:w,prize:p};
+ $("d-win").style.display="block";
+ $("d-win").textContent=`ผู้โชคดี: ${w.id} ${w.name} (${p.name})`;
+ msg("d-msg","กด \"บันทึกผล\" เพื่อยืนยัน หรือกด \"สุ่มรางวัล\" ใหม่",1);
+};
+$("d-save").onclick=()=>{
+ if(!pending)return msg("d-msg","ยังไม่มีผลสุ่มให้บันทึก",0);
+ const did="D"+(S.draws.length+1);
+ S.draws.push({id:did,date:now(),operator:me.id});
+ S.results.push({id:"R"+(S.results.length+1),empId:pending.emp.id,prizeId:pending.prize.id,drawId:did,status:"ยังไม่รับ",receivedAt:""});
+ save();msg("d-msg",`บันทึกผลแล้ว: ${pending.emp.name} ได้ ${pending.prize.name}`,1);
+ pending=null;$("d-win").style.display="none";
+};
+
+let found=null;
+$("k-find").onclick=()=>{
+ found=null;$("k-info").style.display="none";
+ const id=norm($("k-id").value);
+ if(!id)return msg("k-msg","ใส่รหัสพนักงาน",0);
+ const e=empOf(id);
+ if(!e)return msg("k-msg","ไม่พบรหัสนี้ในระบบ",0);
+ const r=S.results.find(x=>x.empId===id);
+ if(!r)return msg("k-msg",`${e.name} ไม่ได้รับรางวัล`,0);
+ found=r;
+ $("k-info").style.display="block";
+ $("k-info").innerHTML=`ชื่อ: ${esc(e.name)}<br>รางวัล: ${esc(prizeOf(r.prizeId)?.name||"-")}<br>สถานะ: ${esc(r.status)}`;
+ msg("k-msg",r.status==="รับแล้ว"?"พนักงานคนนี้รับรางวัลไปแล้ว":"กด \"ยืนยันรับรางวัล\" เมื่อส่งมอบรางวัลแล้ว",r.status!=="รับแล้ว");
+};
+$("k-go").onclick=()=>{
+ if(!found)return msg("k-msg","ค้นหารหัสพนักงานก่อน",0);
+ if(found.status==="รับแล้ว")return msg("k-msg","รับรางวัลไปแล้วเมื่อ "+found.receivedAt,0);
+ found.status="รับแล้ว";found.receivedAt=now();save();
+ $("k-find").onclick();msg("k-msg","บันทึกแล้ว สถานะ: รับแล้ว",1);
+};
+
+$("e-go").onclick=()=>{
+ const id=norm($("e-id").value),name=$("e-name").value.trim(),dep=$("e-dep").value.trim();
+ if(!id||!name||!dep)return msg("e-msg","กรอกรหัส ชื่อ และแผนก",0);
+ if(empOf(id))return msg("e-msg","รหัสนี้มีอยู่แล้ว",0);
+ S.emps.push({id,name,dep,role:$("e-role").value});save();
+ ["e-id","e-name","e-dep"].forEach(i=>$(i).value="");render();msg("e-msg","เพิ่มพนักงานแล้ว",1);
+};
+$("e-reg").onclick=()=>{
+ S.emps.filter(e=>e.role==="employee"&&!S.regs.some(r=>r.empId===e.id)).forEach(e=>S.regs.push({empId:e.id,date:now()}));
+ save();render();msg("e-msg","ลงทะเบียนพนักงานทุกคนแล้ว (สำหรับทดสอบ)",1);
+};
+$("x-print").onclick=()=>window.print();
+nav();
+</script>
+</body>
+</html>
